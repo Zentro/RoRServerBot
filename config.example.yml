@@ -1,0 +1,12 @@
+application:
+  name: "RoRBot"
+  environment: "production"
+  owners:
+    - 219609408835944450
+
+discord:
+  token: ""
+
+logging:
+  level: "info"
+  directory: "/etc/myapp"

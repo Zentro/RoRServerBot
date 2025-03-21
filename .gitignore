@@ -1,3 +1,6 @@
 RoRservices.log
 recordings/*
 configuration.xml
+rorserverbot.db
+
+__pycache__

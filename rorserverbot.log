@@ -1,0 +1,91 @@
+[2025-01-19 01:29:15] [ERROR   ] RoRBot: Error loading extension : Extension '' could not be loaded.
+[2025-01-19 01:29:15] [INFO    ] RoRBot: Database connection established.
+[2025-01-19 01:29:15] [ERROR   ] RoRBot: Error trying to establish connection to database: no such column: is_active
+[2025-01-19 01:37:39] [ERROR   ] RoRBot: Error loading extension : Extension '' could not be loaded.
+[2025-01-19 01:37:39] [INFO    ] RoRBot: Database connection established.
+[2025-01-19 01:37:39] [ERROR   ] RoRBot: Error trying to establish connection to database: no such column: is_active
+[2025-01-19 01:48:53] [ERROR   ] RoRBot: Error loading extension servers: Extension 'servers' could not be loaded.
+[2025-01-19 01:48:53] [INFO    ] RoRBot: Database connection established.
+[2025-01-19 01:48:53] [INFO    ] RoRBot: Database setup completed.
+[2025-01-19 01:50:39] [ERROR   ] RoRBot: Error loading extension servers: Extension 'servers' could not be loaded.
+[2025-01-19 01:50:39] [INFO    ] RoRBot: Database connection established.
+[2025-01-19 01:50:39] [INFO    ] RoRBot: Database setup completed.
+[2025-01-19 01:50:46] [ERROR   ] RoRBot: Error loading extension servers: Extension 'servers' could not be loaded.
+[2025-01-19 01:50:46] [INFO    ] RoRBot: Database connection established.
+[2025-01-19 01:50:46] [INFO    ] RoRBot: Database setup completed.
+[2025-01-19 01:51:15] [ERROR   ] RoRBot: Error loading extension extensions.servers: Extension 'extensions.servers' raised an error: TypeError: object NoneType can't be used in 'await' expression
+[2025-01-19 01:51:15] [INFO    ] RoRBot: Database connection established.
+[2025-01-19 01:51:15] [INFO    ] RoRBot: Database setup completed.
+[2025-01-19 01:52:44] [ERROR   ] RoRBot: Error loading extension extensions.servers: Extension 'extensions.servers' raised an error: TypeError: object NoneType can't be used in 'await' expression
+[2025-01-19 01:52:44] [INFO    ] RoRBot: Database connection established.
+[2025-01-19 01:52:44] [INFO    ] RoRBot: Database setup completed.
+[2025-01-19 01:53:41] [INFO    ] RoRBot: Database connection established.
+[2025-01-19 01:53:41] [INFO    ] RoRBot: Database setup completed.
+[2025-01-19 01:54:30] [ERROR   ] RoRBot: Error loading extension extensions.servers: Extension 'extensions.servers' raised an error: TypeError: 'Logger' object is not callable
+[2025-01-19 01:54:30] [INFO    ] RoRBot: Database connection established.
+[2025-01-19 01:54:30] [INFO    ] RoRBot: Database setup completed.
+[2025-01-19 01:56:42] [ERROR   ] RoRBot: Error loading extension extensions.servers: Extension 'extensions.servers' raised an error: TypeError: 'Logger' object is not callable
+[2025-01-19 01:56:42] [INFO    ] RoRBot: Database connection established.
+[2025-01-19 01:56:42] [INFO    ] RoRBot: Database setup completed.
+[2025-01-19 01:56:49] [ERROR   ] RoRBot: Error loading extension extensions.servers: Extension 'extensions.servers' raised an error: TypeError: 'Logger' object is not callable
+[2025-01-19 01:56:49] [INFO    ] RoRBot: Database connection established.
+[2025-01-19 01:56:49] [INFO    ] RoRBot: Database setup completed.
+[2025-01-19 01:56:58] [ERROR   ] RoRBot: Error loading extension extensions.servers: Extension 'extensions.servers' raised an error: TypeError: 'Logger' object is not callable
+[2025-01-19 01:56:58] [INFO    ] RoRBot: Database connection established.
+[2025-01-19 01:56:58] [INFO    ] RoRBot: Database setup completed.
+[2025-01-19 01:57:04] [ERROR   ] RoRBot: Error loading extension extensions.servers: Extension 'extensions.servers' raised an error: TypeError: 'Logger' object is not callable
+[2025-01-19 01:57:04] [INFO    ] RoRBot: Database connection established.
+[2025-01-19 01:57:04] [INFO    ] RoRBot: Database setup completed.
+[2025-01-19 02:10:19] [MainThread           ] [INFO    ] RoRBot: Database connection established.
+[2025-01-19 02:10:19] [MainThread           ] [INFO    ] RoRBot: Database setup completed.
+[2025-01-19 18:57:26] [MainThread           ] [INFO    ] RoRBot.servers_extension: Servers extension loaded.
+[2025-01-19 18:57:26] [MainThread           ] [INFO    ] RoRBot: Database connection established.
+[2025-01-19 18:57:26] [MainThread           ] [INFO    ] RoRBot: Database setup completed.
+[2025-01-19 18:59:05] [MainThread           ] [ERROR   ] RoRBot: Error loading extension extensions.servers: Extension 'extensions.servers' raised an error: ImportError: attempted relative import beyond top-level package
+[2025-01-19 18:59:05] [MainThread           ] [INFO    ] RoRBot: Database connection established.
+[2025-01-19 18:59:05] [MainThread           ] [INFO    ] RoRBot: Database setup completed.
+[2025-01-19 18:59:50] [MainThread           ] [INFO    ] RoRBot.servers_extension: Servers extension loaded.
+[2025-01-19 18:59:50] [MainThread           ] [INFO    ] RoRBot: Database connection established.
+[2025-01-19 18:59:50] [MainThread           ] [INFO    ] RoRBot: Database setup completed.
+[2025-01-19 19:02:20] [MainThread           ] [INFO    ] RoRBot.servers_extension: Servers extension loaded.
+[2025-01-19 19:02:20] [MainThread           ] [INFO    ] RoRBot: Database connection established.
+[2025-01-19 19:02:20] [MainThread           ] [INFO    ] RoRBot: Database setup completed.
+[2025-01-19 19:15:29] [MainThread           ] [INFO    ] RoRBot.servers_extension: Servers extension loaded.
+[2025-01-19 19:15:29] [MainThread           ] [INFO    ] RoRBot: Database connection established.
+[2025-01-19 19:15:29] [MainThread           ] [INFO    ] RoRBot: Database setup completed.
+[2025-01-19 19:16:21] [MainThread           ] [INFO    ] RoRBot.servers_extension: Servers extension loaded.
+[2025-01-19 19:16:21] [MainThread           ] [INFO    ] RoRBot: Database connection established.
+[2025-01-19 19:16:21] [MainThread           ] [INFO    ] RoRBot: Database setup completed.
+[2025-01-19 19:19:04] [MainThread           ] [INFO    ] RoRBot.servers_extension: Servers extension loaded.
+[2025-01-19 19:19:04] [MainThread           ] [INFO    ] RoRBot: Database connection established.
+[2025-01-19 19:19:04] [MainThread           ] [INFO    ] RoRBot: Database setup completed.
+[2025-01-19 19:19:14] [MainThread           ] [INFO    ] RoRBot.servers_extension: Servers extension loaded.
+[2025-01-19 19:19:14] [MainThread           ] [INFO    ] RoRBot: Database connection established.
+[2025-01-19 19:19:14] [MainThread           ] [INFO    ] RoRBot: Database setup completed.
+[2025-01-19 19:20:26] [MainThread           ] [INFO    ] RoRBot.servers_extension: Servers extension loaded.
+[2025-01-19 19:20:26] [MainThread           ] [INFO    ] RoRBot: Database connection established.
+[2025-01-19 19:20:26] [MainThread           ] [INFO    ] RoRBot: Database setup completed.
+[2025-01-19 19:22:58] [MainThread           ] [INFO    ] RoRBot.servers_extension: Servers extension loaded.
+[2025-01-19 19:22:58] [MainThread           ] [INFO    ] RoRBot: Database connection established.
+[2025-01-19 19:22:58] [MainThread           ] [INFO    ] RoRBot: Database setup completed.
+[2025-01-19 19:32:09] [MainThread           ] [INFO    ] RoRBot.servers_extension: Servers extension loaded.
+[2025-01-19 19:32:09] [MainThread           ] [INFO    ] RoRBot: Database connection established.
+[2025-01-19 19:32:09] [MainThread           ] [INFO    ] RoRBot: Database setup completed.
+[2025-01-19 19:35:56] [MainThread           ] [INFO    ] RoRBot.servers_extension: Servers extension loaded.
+[2025-01-19 19:35:56] [MainThread           ] [INFO    ] RoRBot: Database connection established.
+[2025-01-19 19:35:56] [MainThread           ] [INFO    ] RoRBot: Database setup completed.
+[2025-01-19 20:22:29] [MainThread           ] [INFO    ] RoRBot.servers_extension: Servers extension loaded.
+[2025-01-19 20:22:29] [MainThread           ] [INFO    ] RoRBot: Database connection established.
+[2025-01-19 20:22:29] [MainThread           ] [INFO    ] RoRBot: Database setup completed.
+[2025-01-19 20:25:37] [MainThread           ] [INFO    ] RoRBot.servers_extension: Servers extension loaded.
+[2025-01-19 20:25:37] [MainThread           ] [INFO    ] RoRBot: Database connection established.
+[2025-01-19 20:25:37] [MainThread           ] [INFO    ] RoRBot: Database setup completed.
+[2025-03-20 22:46:27] [MainThread           ] [ERROR   ] RoRBot: Error loading extension extensions.servers: Extension 'extensions.servers' raised an error: ImportError: attempted relative import beyond top-level package
+[2025-03-20 22:46:27] [MainThread           ] [INFO    ] RoRBot: Database connection established.
+[2025-03-20 22:46:27] [MainThread           ] [INFO    ] RoRBot: Database setup completed.
+[2025-03-20 22:47:40] [MainThread           ] [ERROR   ] RoRBot: Error loading extension extensions.servers: Extension 'extensions.servers' raised an error: ImportError: cannot import name 'system_message' from 'util' (unknown location)
+[2025-03-20 22:47:40] [MainThread           ] [INFO    ] RoRBot: Database connection established.
+[2025-03-20 22:47:40] [MainThread           ] [INFO    ] RoRBot: Database setup completed.
+[2025-03-20 22:49:24] [MainThread           ] [INFO    ] RoRBot.servers_extension: Servers extension loaded.
+[2025-03-20 22:49:24] [MainThread           ] [INFO    ] RoRBot: Database connection established.
+[2025-03-20 22:49:24] [MainThread           ] [INFO    ] RoRBot: Database setup completed.
