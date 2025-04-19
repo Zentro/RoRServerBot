@@ -37,7 +37,8 @@ class Servers(commands.Cog):
 
         The command checks against the daabase for a server associated with the
         current Discord channel. If a server is found, let them know we found
-        it; otherwise, we let them know we could not find the server.
+        it; otherwise, we let them know we could not find the server and add it
+        to the connection pool.
 
         Args:
             ctx (commands.Context): The context of the command invocation.
@@ -72,14 +73,70 @@ class Servers(commands.Cog):
     @commands.hybrid_command()
     async def add(self, ctx, ip: str, password: str):
         """
-        Add a server.
+        Add a server to the database associated with the current Discord
+        channel.
+
+        This command allows users to register a server by providing an IP and
+        a password. The channel where the command is used will be linked to
+        the server.
+
+        This command does't assume the server is already alive, but it will
+        attempt to connect and add it to the connection pool.
+
+        Args:
+            ctx (commands.Context): The context of the command invocation.
+            ip (str): The IP address of the server to add.
+            password (str): The password for the server.
+
+        Database:
+            - Table: servers
+            - Columns: channel (int), ip (str), password (str)
+
+        Behavior:
+            - Inserts a new server entry into the database, associating it
+              with the channel.
+
+        Example Usage:
+            ```
+            /add 192.168.1.100:12000 mypassword
+            ```
+
+        Note:
+            - If a server is already registered for the channel, consider
+              updating it instead.
         """
         # channel_id = ctx.channel.id
 
     @commands.hybrid_command()
     async def remove(self, ctx):
         """
-        Remove a server.
+        Remove the server associated with the current Discord channel.
+
+        This command deletes the entry in the database that links the current
+        channel to a server.
+
+        If the server is still connected, the connection will be stopped
+        first.
+
+        Args:
+            ctx (commands.Context): The context of the command invocation.
+
+        Database:
+            - Table: servers
+            - Columns: channel, ip, password
+
+        Behavior:
+            - Deletes the server entry associated with the channel from the
+              database.
+
+        Example Usage:
+            ```
+            /remove
+            ```
+
+        Note:
+            - If no server is registered for the channel, an error message
+              will be displayed.
         """
         await ctx.send("test")
 

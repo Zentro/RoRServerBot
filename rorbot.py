@@ -28,6 +28,9 @@ from aiohttp import ClientSession
 from config import Config
 
 
+# -----------------------------------------------------------------------------
+# Constants
+# -----------------------------------------------------------------------------
 __version__ = "2.0.0"
 
 
@@ -121,6 +124,9 @@ def print_version_and_quit():
 
 
 async def main():
+    # ------------------------------------------------------------------------
+    # Setup the command line arguments
+    # ------------------------------------------------------------------------
     parser = argparse.ArgumentParser(
         description="",
         formatter_class=RawTextHelpFormatter)
@@ -129,18 +135,18 @@ async def main():
                         help="Path to the configuration file")
     parser.add_argument("--version",
                         help="Print the version and quit")
-
     args = parser.parse_args()
-
+    # ------------------------------------------------------------------------
+    # Load the configuration file
+    # ------------------------------------------------------------------------
     Config.load_config(args.config)
     config = Config.get_config()
-
+    # ------------------------------------------------------------------------
+    # Setup the logger
+    # ------------------------------------------------------------------------
     # logger = logging.getLogger(config["application"]["name"])
     logger = logging.getLogger('RoRBot')
     logger.setLevel(Config.get_logging_level())
-
-    # Setup the rotating file logger with a max size of 32 MiB and only rotate
-    # through 5 backups.
     handler = logging.handlers.RotatingFileHandler(
         filename="rorserverbot.log",
         encoding="utf-8",
@@ -153,7 +159,9 @@ async def main():
         dt_fmt, style='{')
     handler.setFormatter(formatter)
     logger.addHandler(handler)
-
+    # ------------------------------------------------------------------------
+    # Setup the Discord bot
+    # ------------------------------------------------------------------------
     exts = ['extensions.servers']
     intents = discord.Intents.default()
     intents.message_content = True
