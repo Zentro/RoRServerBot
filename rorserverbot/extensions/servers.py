@@ -15,6 +15,8 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 import logging
 
+from client.client import Client
+
 # import discord
 from config import Config
 from discord.ext import commands
@@ -29,6 +31,50 @@ class Servers(commands.Cog):
         self.logger = logging.getLogger('RoRBot.servers_extension')
         self.config = Config.get_config()
         self.clients = {}
+
+    async def _get_or_create_client(self, channel_id, host, port, password):
+        """
+        Get an existing client for a channel or create a new one.
+
+        :param channel_id: Discord channel ID
+        :param host: Server host
+        :param port: Server port
+        :param password: Server password
+        :return: Client instance
+        """
+        # Check if client already exists and is connected
+        if channel_id in self.clients:
+            client = self.clients[channel_id]
+            if client.is_connected():
+                return client
+            else:
+                # Client exists but not connected, remove it
+                del self.clients[channel_id]
+
+        # Create new client
+        client_logger = logging.getLogger(f'RoRBot.client.{channel_id}')
+        client = Client(client_logger, host, port, password, channel_id)
+
+        # Register a handler to forward RoR messages to Discord
+        async def forward_to_discord(chat_message):
+            try:
+                channel = self.bot.get_channel(channel_id)
+                if channel:
+                    # Send message to Discord
+                    await channel.send(f"**[RoR Server]** {chat_message}")
+                    self.logger.debug(f"Forwarded RoR message to Discord "
+                                      f"channel {channel_id}: {chat_message}")
+                else:
+                    self.logger.warning(f"Could not find Discord channel "
+                                        f"{channel_id} to forward message")
+            except Exception as e:
+                self.logger.error(f"Error forwarding message to Discord "
+                                  f"channel {channel_id}: {e}")
+
+        client.register_message_handler(forward_to_discord)
+
+        self.clients[channel_id] = client
+        return client
 
     @commands.hybrid_command()
     async def connect(self, ctx):
