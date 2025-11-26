@@ -1,4 +1,3 @@
-#!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
 # This program is free software: you can redistribute it and/or modify
@@ -18,6 +17,16 @@ import discord
 
 def system_message(title: str, description: str, color=discord.Color.blue()):
     """
+    Create a standard embed for system messages.
+
+    :param title: The title of the embed
+    :type title: str
+    :param description: The description of the embed
+    :type description: str
+    :param color: The color of the embed
+    :type color: discord.Color
+    :return: The embed
+    :rtype: discord.Embed
     """
     embed = discord.Embed(
         title=title,
@@ -29,5 +38,12 @@ def system_message(title: str, description: str, color=discord.Color.blue()):
 
 def error_message(title: str, description: str):
     """
+    Create a standard embed for error messages.
+    :param title: The title of the embed
+    :type title: str
+    :param description: The description of the embed
+    :type description: str
+    :return: The embed
+    :rtype: discord.Embed
     """
     return system_message(title, description, discord.Color.red())

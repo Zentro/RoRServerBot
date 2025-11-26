@@ -1,4 +1,3 @@
-#!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
 # This program is free software: you can redistribute it and/or modify
@@ -16,6 +15,7 @@
 import logging
 
 from client.client import Client
+from rorserverbot.datamanager import DataManager
 
 # import discord
 from config import Config
@@ -25,12 +25,13 @@ import aiosqlite
 from util import system_message
 
 
-class Servers(commands.Cog):
+class Servers(commands.Cog):    
     def __init__(self, bot):
         self.bot = bot
         self.logger = logging.getLogger('RoRBot.servers_extension')
-        self.config = Config.get_config()
-        self.clients = {}
+        self.config = bot.config
+        self.dbm: DataManager = bot.dbm
+        #self.clients = Dict[str, ]
 
     async def _get_or_create_client(self, channel_id, host, port, password):
         """
@@ -105,16 +106,6 @@ class Servers(commands.Cog):
             - Nothing to note.
         """
         channel_id = ctx.channel.id
-        async with aiosqlite.connect("rorserverbot.db") as db:
-            async with db.execute("SELECT ip FROM servers WHERE channel = ?",
-                                  (channel_id,)) as cursor:
-                row = await cursor.fetchone()
-                if row:
-                    # ip = row[0]
-                    embed = system_message()
-                    await ctx.send(embed)
-                else:
-                    await ctx.send("server not found")
 
     @commands.hybrid_command()
     async def add(self, ctx, ip: str, password: str):

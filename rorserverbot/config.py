@@ -28,15 +28,15 @@ class Config:
     discord_token: str = None
     discord_command_prefix: str = "!"
     language: str = "en"
-    database_path: str = "/var/lib/rorserverbot/rorserverbot.db"
+    db_file_path: str = "/var/lib/rorserverbot/rorserverbot.db"
     log_file_path: str = "/var/log/rorserverbot/rorserverbot.log"
 
     def __init__(self, path: Path):
-        self.path = path
-        if self.path.exists():
-            raise FileNotFoundError(
-                f'Config file not found: {self.path}'
-            )
+        self.path: Path = path
+        # if self.path.exists():
+        #     raise FileNotFoundError(
+        #         f'Config file not found: {self.path}'
+        #     )
 
         with self.path.open('r') as f:
             data = yaml.safe_load(f)
