@@ -20,12 +20,10 @@ from typing import List
 from pathlib import Path
 import logging
 
-from rorserverbot.config import Config
-from rorserverbot.datamanager import DataManager
-from rorserverbot.logger import set_up_logger
-from rorserverbot import __version__
-from rorserverbot.models import Server
-from rorserverbot.const import (
+from rorserverbot import Config, DataManager, __version__
+from .logger import set_up_logger
+from .models import ServerModel
+from .const import (
     CONFIG_FILE_PATH,
     LOG_FILE_PATH,
     DATABASE_FILE_PATH
@@ -37,7 +35,9 @@ from aiohttp import ClientSession
 
 
 LOG = logging.getLogger('rorserverbot.bot')
-LOG_FORMAT = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+LOG_FORMAT = (
+    '%(asctime)s - %(name)s - %(levelname)s - (%(thread)d) - %(message)s'
+)
 
 
 class Main(commands.Bot):
@@ -65,6 +65,11 @@ class Main(commands.Bot):
                 await self.load_extension(extension)
             except Exception as e:
                 self.logger.error(f"Error loading extension {extension}: {e}")
+
+    async def close(self):
+        await super().close()
+        await self.dbm.close()
+        await self.web_client.close()
 
 
 def print_version():
@@ -106,7 +111,7 @@ async def main():
     config = Config(Path(args.config))
     # The various libraries can have their own loggers, and we want
     # to take control of all of them to ensure consistent logging.
-    loggers_list = ['rorserverbot', 'discord', 'discord.http', 
+    loggers_list = ['rorserverbot', 'discord', 'discord.http',
                     'aiohttp', 'asyncio']
     # Handle the verbose flag for logging.
     if args.verbose:
@@ -139,21 +144,27 @@ async def main():
     # they do not already exist.
     dbm = DataManager(config.db_file_path)
     await dbm.connect()
-    await dbm.create_table(Server)
-    exts = ['extensions.servers']
+    await dbm.create_table(ServerModel)
+    exts = ['rorserverbot.extensions.servers']
     intents = discord.Intents.default()
     intents.message_content = True
     async with ClientSession() as our_client:
         async with Main(
             commands.when_mentioned,
             initial_extensions=exts,
-            logger=None,
+            logger=LOG,
             config=config,
             dbm=dbm,
             web_client=our_client,
             intents=intents,
         ) as our_bot:
-            await our_bot.start(config.discord_token)
-
-
-asyncio.run(main())
+            try:
+                await our_bot.start(config.discord_token)
+            except (asyncio.CancelledError, KeyboardInterrupt):
+                LOG.info("Received exit signal, shutdown started.")
+            finally:
+                try:
+                    await our_bot.close()
+                except KeyboardInterrupt:
+                    pass
+                LOG.info("Shutdown complete.")

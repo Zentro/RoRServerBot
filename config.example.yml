@@ -1,9 +1,7 @@
-name: "RoRBot"
-environment: "production"
-owners:
-  - 219609408835944450
-discord:
-  token: ""
-logging:
-  level: "info"
-  directory: "/etc/myapp"
+  name: "RoRBot"
+  verbose: False
+  discord_token: "YOUR_TOKEN"
+  discord_command_prefix: "!"
+  language: "en"
+  db_file_path: "/var/lib/rorserverbot/rorserverbot.db"
+  log_file_path: "/var/log/rorserverbot/rorserverbot.log"

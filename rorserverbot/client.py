@@ -14,11 +14,10 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 import asyncio
-from ctypes import sizeof
 import struct
 import hashlib
 from dataclasses import dataclass
-from RoRnet import UserInfo, ServerInfo, MessageType
+from .RoRnet import UserInfo, ServerInfo, MessageType
 
 
 @dataclass
@@ -47,13 +46,13 @@ class DataPacket:
     time: int
 
 
-class Stream():
-    """Stream class is a low-level interface to manage the stream connection.
+class Client():
+    """Client class to handle the connection to the server.
     """
 
     def __init__(self, logger=None, host: str = None, port: int = None):
         """
-        Stream class to handle the connection to the server.
+        Client class to handle the connection to the server.
         :param logger: Logger object to log messages.
         :type logger: logging.Logger
         :param host: Hostname or IP address of the server.

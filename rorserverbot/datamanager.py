@@ -14,7 +14,7 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 from pathlib import Path
 import logging
-from dataclasses import dataclass, fields, is_dataclass
+from dataclasses import fields, is_dataclass
 from typing import Type, TypeVar, List, Optional, Any, get_origin, get_args
 
 import aiosqlite

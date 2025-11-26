@@ -15,11 +15,13 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 import sys
 
-import rorserverbot.bot
+from rorserverbot.bot import main as async_main
+
+import asyncio
 
 
 def main():
-    return rorserverbot.bot.main()
+    return asyncio.run(async_main())
 
 
 if __name__ == '__main__':

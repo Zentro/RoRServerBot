@@ -18,7 +18,7 @@ from datetime import datetime
 
 
 @dataclass
-class Server:
+class ServerModel:
     """
     The Server dataclass represents the metadata for a Rigs of Rods server
     that interacts with Discord.
@@ -30,9 +30,9 @@ class Server:
     :param password: Optional server password
     :param created_at: Timestamp when the server entry was created
     """
-    guild_id  : int
+    guild_id: int
     channel_id: int
-    host      : str
-    port      : int
-    password  : Optional[str] = None
+    host: str
+    port: int
+    password: Optional[str] = None
     created_at: datetime = field(default_factory=datetime.now())

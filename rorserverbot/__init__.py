@@ -12,5 +12,22 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
+"""
+RoRServerBot
+~~~~~~~~~~~~
 
+The Rigs of Rods Server Bot for Discord.
+
+:license: GNU GPLv3, see LICENSE for more details.
+
+"""
+
+__title__ = "rorserverbot"
+__license__ = "GNU GPLv3"
 __version__ = "2.0.0"
+
+from .client import Client
+from .config import Config
+from .datamanager import DataManager
+
+__all__ = ["Client", "Config", "DataManager"]

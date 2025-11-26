@@ -14,68 +14,189 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 import logging
 
-from client.client import Client
-from rorserverbot.datamanager import DataManager
+from typing import Dict
+from dataclasses import dataclass
+
+from rorserverbot import Client, Config, DataManager
+from ..RoRnet import UserInfo, ServerInfo
 
 # import discord
-from config import Config
 from discord.ext import commands
-import aiosqlite
-
-from util import system_message
 
 
-class Servers(commands.Cog):    
+LOG = logging.getLogger('rorserverbot.ext.servers')
+
+
+@dataclass
+class Server:
+    """
+    Data class to hold server information.
+
+    :ivar name: The name of the server.
+    :ivar host: The hostname or IP address of the server.
+    :ivar port: The port number of the server.
+    :ivar channel_id: The Discord channel ID associated with the server.
+    :ivar client: The Client instance managing the connection to the server.
+    """
+    name: str
+    host: str
+    port: int
+    channel_id: int
+    client: Client
+
+
+class Servers(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.logger = logging.getLogger('RoRBot.servers_extension')
-        self.config = bot.config
+        self.config: Config = bot.config
         self.dbm: DataManager = bot.dbm
-        #self.clients = Dict[str, ]
+        self.servers: Dict[str, Server] = {}
 
-    async def _get_or_create_client(self, channel_id, host, port, password):
+    async def _create_connection(
+        self,
+        name: str,
+        host: str,
+        port: int,
+        channel_id: int
+    ) -> Server:
         """
-        Get an existing client for a channel or create a new one.
+        Create a connection to a server and return a Server instance.
 
-        :param channel_id: Discord channel ID
-        :param host: Server host
-        :param port: Server port
-        :param password: Server password
-        :return: Client instance
+        :param name: The name of the server.
+        :type name: str
+
+        :param host: The hostname or IP address of the server.
+        :type host: str
+
+        :param port: The port number of the server.
+        :type port: int
+
+        :param channel_id: The Discord channel ID associated with the server.
+        :type channel_id: int
+
+        :return: A Server instance representing the connected server.
         """
-        # Check if client already exists and is connected
-        if channel_id in self.clients:
-            client = self.clients[channel_id]
-            if client.is_connected():
-                return client
-            else:
-                # Client exists but not connected, remove it
-                del self.clients[channel_id]
+        logger = logging.getLogger(f'rorserverbot.server.{name}')
+        client = Client(logger=logger, host=host, port=port)
 
-        # Create new client
-        client_logger = logging.getLogger(f'RoRBot.client.{channel_id}')
-        client = Client(client_logger, host, port, password, channel_id)
+        client.register_event_handler('on_connect',
+                                      lambda *args: self._on_connect(name,
+                                                                     *args))
+        client.register_event_handler('on_disconnect',
+                                      lambda *args: self._on_disconnect(name,
+                                                                        *args))
+        client.register_event_handler('on_message',
+                                      lambda *args: self._on_message(name,
+                                                                     *args))
 
-        # Register a handler to forward RoR messages to Discord
-        async def forward_to_discord(chat_message):
-            try:
-                channel = self.bot.get_channel(channel_id)
-                if channel:
-                    # Send message to Discord
-                    await channel.send(f"**[RoR Server]** {chat_message}")
-                    self.logger.debug(f"Forwarded RoR message to Discord "
-                                      f"channel {channel_id}: {chat_message}")
-                else:
-                    self.logger.warning(f"Could not find Discord channel "
-                                        f"{channel_id} to forward message")
-            except Exception as e:
-                self.logger.error(f"Error forwarding message to Discord "
-                                  f"channel {channel_id}: {e}")
+        server = Server(
+            name=name,
+            host=host,
+            port=port,
+            channel_id=channel_id,
+            client=client
+        )
 
-        client.register_message_handler(forward_to_discord)
+        return server
 
-        self.clients[channel_id] = client
-        return client
+    async def _connect_server(
+        self,
+        name: str,
+        host: str,
+        port: int,
+        channel_id: int,
+        user_info: UserInfo,
+        server_info: ServerInfo
+    ):
+        """
+        Create and connect to a server.
+
+        :param name: The name of the server.
+        :type name: str
+
+        :param host: The hostname or IP address of the server.
+        :type host: str
+
+        :param port: The port number of the server.
+        :type port: int
+
+        :param user_info: User information for the connection.
+        :type user_info: UserInfo
+
+        :param server_info: Server information for the connection.
+        :type server_info: ServerInfo
+
+        :param channel_id: The Discord channel ID associated with the server.
+        :type channel_id: int
+        """
+        server = await self._create_connection(
+            name=name,
+            host=host,
+            port=port,
+            channel_id=channel_id
+        )
+
+        try:
+            await server.client.connect(
+                user_info=user_info,
+                server_info=server_info
+            )
+            self.servers[name] = server
+        except Exception as e:
+            raise e
+
+    async def _on_connect(self, name: str, user_info, server_info):
+        """
+        Handle the event when the server connects.
+
+        :param name: The name of the server that connected.
+        :type name: str
+
+        :return: None
+        :rtype: None
+        """
+        server = self.servers.get(name)
+        if server:
+            channel = self.bot.get_channel(server.channel_id)
+            if channel:
+                await channel.send(f"Connected to server {name} at "
+                                   f"{server.host}:{server.port}")
+
+    async def _on_disconnect(self, name: str):
+        """
+        Handle the event when the server disconnects.
+
+        :param name: The name of the server that disconnected.
+        :type name: str
+
+        :return: None
+        :rtype: None
+        """
+        server = self.servers.get(name)
+        if server:
+            channel = self.bot.get_channel(server.channel_id)
+            if channel:
+                await channel.send(f"Disconnected from {name} at "
+                                   f"{server.host}:{server.port}")
+
+    async def _on_message(self, name: str, message: str):
+        """
+        Handle the event when a messgage is sent on the server.
+
+        :param name: The name of the server that sent the message.
+        :type name: str
+
+        :param message: The message sent.
+        :type message: str
+
+        :return: None
+        :rtype: None
+        """
+        server = self.servers.get(name)
+        if server:
+            channel = self.bot.get_channel(server.channel_id)
+            if channel:
+                await channel.send(f"💬 {message}")
 
     @commands.hybrid_command()
     async def connect(self, ctx):
@@ -105,7 +226,41 @@ class Servers(commands.Cog):
         Note:
             - Nothing to note.
         """
-        channel_id = ctx.channel.id
+        name = "RoR_Server"
+        host = "rorservers.com"
+        port = 12000
+        username = "DiscordUser"
+        password = ""
+
+        user_info = UserInfo()
+        user_info.username = username.encode('utf-8').ljust(40, b'\x00')
+        user_info.serverpassword = password.encode('utf-8').ljust(40, b'\x00')
+        user_info.uniqueid = 0
+        user_info.language = b'en-US'.ljust(10, b'\x00')
+        user_info.clientname = b'DiscordBot'.ljust(10, b'\x00')
+        user_info.clientversion = b'1.0'.ljust(25, b'\x00')
+        user_info.clientGUID = b'discord-bot'.ljust(40, b'\x00')
+        user_info.sessiontype = b'normal'.ljust(10, b'\x00')
+        user_info.sessionoptions = b''.ljust(128, b'\x00')
+        user_info.authstatus = 0
+        user_info.slotnum = 0
+        user_info.colournum = 0
+        user_info.usertoken = b''.ljust(40, b'\x00')
+
+        # Create ServerInfo
+        server_info = ServerInfo()
+        server_info.host = host.encode('utf-8')
+        server_info.port = port
+
+        success = await self._connect_server(
+            name=name,
+            host=host,
+            port=port,
+            channel_id=ctx.channel.id,
+            user_info=user_info,
+            server_info=server_info
+        )
+        await ctx.send("Connected to server!" if success else "Failed to connect to server.")
 
     @commands.hybrid_command()
     async def add(self, ctx, ip: str, password: str):
@@ -178,7 +333,7 @@ class Servers(commands.Cog):
         await ctx.send("test")
 
     async def cog_load(self):
-        self.logger.info("Servers extension loaded.")
+        LOG.info("Servers extension loaded.")
 
 
 async def setup(bot):

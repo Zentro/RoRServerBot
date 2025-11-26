@@ -41,14 +41,14 @@ class Config:
         with self.path.open('r') as f:
             data = yaml.safe_load(f)
 
-        keys = self.__annotations__.keys()
+        annotations = self.__class__.__annotations__
         for key, value in data.items():
             # Check for unexpected keys
-            if key not in keys:
+            if key not in annotations:
                 raise ValueError(f"Unexpected key: {key}")
 
             # Type checking, if annotation exists
-            expected_type = self.__annotations__[key]
+            expected_type = annotations[key]
             if expected_type is not None and not isinstance(value,
                                                             expected_type):
                 raise ValueError(
