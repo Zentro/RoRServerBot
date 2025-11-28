@@ -15,7 +15,9 @@
 import discord
 
 
-def system_message(title: str, description: str, color=discord.Color.blue()):
+def system_message(title: str | None = None,
+                   description: str | None = None,
+                   color: discord.Colour | None = None):
     """
     Create a standard embed for system messages.
 
@@ -36,9 +38,10 @@ def system_message(title: str, description: str, color=discord.Color.blue()):
     return embed
 
 
-def error_message(title: str, description: str):
+def danger_message(title: str | None = None,
+                   description: str | None = None):
     """
-    Create a standard embed for error messages.
+    Create a standard embed for danger messages.
     :param title: The title of the embed
     :type title: str
     :param description: The description of the embed
@@ -47,3 +50,17 @@ def error_message(title: str, description: str):
     :rtype: discord.Embed
     """
     return system_message(title, description, discord.Color.red())
+
+
+def sucess_message(title: str | None = None,
+                   description: str | None = None):
+    """
+    Create a standard embed for sucess messages.
+    :param title: The title of the embed
+    :type title: str
+    :param description: The description of the embed
+    :type description: str
+    :return: The embed
+    :rtype: discord.Embed
+    """
+    return system_message(title, description, discord.Color.green())

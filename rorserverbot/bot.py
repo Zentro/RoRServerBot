@@ -58,6 +58,7 @@ class Main(commands.Bot):
         self.web_client = web_client
 
     async def setup_hook(self) -> None:
+        # await self.tree.sync(guild=None)
         # Load the extenions prior to sync to ensure we are syncing
         # interactions defined in the extensions...
         for extension in self.initial_extensions:

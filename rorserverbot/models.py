@@ -23,13 +23,17 @@ class ServerModel:
     The Server dataclass represents the metadata for a Rigs of Rods server
     that interacts with Discord.
 
+    :param name: Server name
     :param guild_id: Discord guild ID
     :param channel_id: Discord channel ID
+    :param language: Language
+
     :param host: Server host
     :param port: Server port
     :param password: Optional server password
     :param created_at: Timestamp when the server entry was created
     """
+    name: str
     guild_id: int
     channel_id: int
     host: str

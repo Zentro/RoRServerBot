@@ -189,10 +189,12 @@ class Client():
             return header
         except asyncio.IncompleteReadError as e:
             self.logger.warning(f"Incomplete read: {e}")
+            await self.dispatch_event('on_error', str(e))
             await self.disconnect()
             return None
         except Exception as e:
             self.logger.error(f"Error receiving data: {e}")
+            await self.dispatch_event('on_error', str(e))
             await self.disconnect()
             return None
 
@@ -276,9 +278,11 @@ class Client():
 
             except asyncio.CancelledError:
                 self.logger.info("Receive loop cancelled")
+                await self.disconnect()
                 break
             except Exception as e:
                 self.logger.error(f"Error in receive loop: {e}")
+                await self.dispatch_event('on_error', str(e))
                 await self.disconnect()
                 break
 
@@ -353,6 +357,15 @@ class Client():
                            packet.streamid,
                            packet.size,
                            packet.data)
+
+    def is_connected(self) -> bool:
+        """
+        Check if the client is connected to the server.
+
+        :return: True if connected, False otherwise.
+        :rtype: bool
+        """
+        return self.connected
 
     def register_event_handler(self, event_name, handler):
         """
