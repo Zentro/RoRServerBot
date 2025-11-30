@@ -24,9 +24,9 @@ from rorserverbot import Config, DataManager, __version__
 from .logger import set_up_logger
 from .models import ServerModel
 from .const import (
-    CONFIG_FILE_PATH,
-    LOG_FILE_PATH,
-    DATABASE_FILE_PATH
+    DEFAULT_CONFIG_FILE,
+    DEFAULT_LOG_FILE,
+    DEFAULT_DB_FILE
 )
 
 import discord
@@ -100,13 +100,13 @@ async def main():
         formatter_class=RawTextHelpFormatter)
     parser.add_argument("--config",
                         help="Path to the config file",
-                        default=CONFIG_FILE_PATH)
+                        default=DEFAULT_CONFIG_FILE)
     parser.add_argument("--db-file",
                         help="Path to the database file",
-                        default=DATABASE_FILE_PATH)
+                        default=DEFAULT_DB_FILE)
     parser.add_argument("--log-file",
                         help="Path to the log file",
-                        default=LOG_FILE_PATH)
+                        default=DEFAULT_LOG_FILE)
     parser.add_argument("--version",
                         help="Print the version and quit")
     parser.add_argument("--verbose", action="store_true",

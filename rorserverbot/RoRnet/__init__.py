@@ -13,6 +13,17 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
+"""
+RoRnet
+~~~~~~
+
+Rigs of Rods Network Protocol Structures and Constants.
+
+:license: GNU GPLv3, see LICENSE for more details.
+"""
+
+__version__ = "2.45"
+
 from .structs import (
     Header, StreamRegister, StreamUnRegister, UserInfo,
     VehicleState, ServerInfo

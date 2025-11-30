@@ -17,7 +17,7 @@ import asyncio
 import struct
 import hashlib
 from dataclasses import dataclass
-from .RoRnet import UserInfo, ServerInfo, MessageType
+from .RoRnet import UserInfo, ServerInfo, MessageType, __version__
 
 
 @dataclass
@@ -50,8 +50,10 @@ class Client():
     """Client class to handle the connection to the server.
     """
 
+    VERSION = __version__
+
     def __init__(self,
-                 unique_id = 0,
+                 unique_id: int = 0,
                  logger=None,
                  host: str = None,
                  port: int = None,
@@ -91,7 +93,7 @@ class Client():
         self.run_task = None
         self.host = host
         self.port = port
-        self.user_info = None
+        self.user_info = UserInfo()
         self.server_info = None
         self.event_handlers = {
             'on_message': [],
@@ -102,20 +104,12 @@ class Client():
             'on_disconnect': [],
             'on_timeout': [],
         }
-        if self.user_info is None:
-            self.user_info = UserInfo(
-                username=username.encode('utf-8').ljust(40, b'\x00'),
-                serverpssword=password.encode('utf-8').ljust(40, b'\x00'),
-                language=language.encode('utf-8').ljust(10, b'\x00'),
-                clientname = b'RoRBot'.ljust(10, b'\x00'),
-                clientversion = b'1.0'.ljust(25, b'\x00'),
-                usertoken = b''.ljust(40, b'\x00'),
-            )
-        if self.server_info is None:
-            self.server_info = ServerInfo(
-                host=host.encode('utf-8').ljust(128, b'\x00'),
-                port=port
-            )
+        self.user_info.username = username.encode('utf-8').ljust(40, b'\x00')
+        self.user_info.serverpassword = password.encode('utf-8').ljust(40, b'\x00')
+        self.user_info.language = language.encode('utf-8').ljust(10, b'\x00')
+        self.user_info.clientname = b'RoRBot'.ljust(10, b'\x00')
+        self.user_info.clientversion = b'1.0'.ljust(25, b'\x00')
+        self.user_info.usertoken = b''.ljust(40, b'\x00')
 
     async def connect(self):
         """
@@ -149,19 +143,19 @@ class Client():
             if packet.command != MessageType.MSG2_HELLO:
                 raise Exception("Invalid response from server during HELLO")
             data = struct.pack('Iiii40s40s40s10s10s25s40s10s128s',
-                    int(user_info.uniqueid),
-                    int(user_info.authstatus),
-                    int(user_info.slotnum),
-                    int(user_info.colournum),
-                    user_info.username,
-                    hashlib.sha1(user_info.usertoken).digest().upper(),
-                    hashlib.sha1(user_info.serverpassword).digest().upper(),
-                    user_info.language,
-                    user_info.clientname,
-                    user_info.clientversion,
-                    user_info.clientGUID,
-                    user_info.sessiontype,
-                    user_info.sessionoptions
+                    int(self.user_info.uniqueid),
+                    int(self.user_info.authstatus),
+                    int(self.user_info.slotnum),
+                    int(self.user_info.colournum),
+                    self.user_info.username,
+                    hashlib.sha1(self.user_info.usertoken).digest().upper(),
+                    hashlib.sha1(self.user_info.serverpassword).digest().upper(),
+                    self.user_info.language,
+                    self.user_info.clientname,
+                    self.user_info.clientversion,
+                    self.user_info.clientGUID,
+                    self.user_info.sessiontype,
+                    self.user_info.sessionoptions
             )
             await self.send(DataPacket(
                 source=0,
@@ -342,10 +336,12 @@ class Client():
             pass
         elif command == MessageType.MSG2_USER_JOIN.value:
             self.logger.info(f"User joined: source={packet.source}")
-            await self.dispatch_event('on_event', 'user_join', packet)
+            await self.dispatch_event('on_event', 'user_join',
+                                      packet.data)
         elif command == MessageType.MSG2_USER_LEAVE.value:
             self.logger.info(f"User left: source={packet.source}")
-            await self.dispatch_event('on_event', 'user_leave', packet)
+            await self.dispatch_event('on_event', 'user_leave',
+                                      packet.data)
         elif command == MessageType.MSG2_STREAM_REGISTER_RESULT.value:
             # Stream registration result
             pass

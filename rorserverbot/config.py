@@ -31,14 +31,14 @@ class Config:
     """Config manager.
     """
 
-    OPTION_DEFAULTS = OrderedDict(
-        ('name', None),
-        ('verbose', False),
-        ('discord.token', None),
-        ('discord.command_prefix', DEFAULT_DISCORD_COMMAND_PREFIX),
-        ('db_file', DEFAULT_DB_FILE),
-        ('log_file', DEFAULT_LOG_FILE),
-    )
+    # OPTION_DEFAULTS = OrderedDict(
+    #     ('name', None),
+    #     ('verbose', False),
+    #     ('discord.token', None),
+    #     ('discord.command_prefix', DEFAULT_DISCORD_COMMAND_PREFIX),
+    #     ('db_file', DEFAULT_DB_FILE),
+    #     ('log_file', DEFAULT_LOG_FILE),
+    # )
 
     name: str = "RoRBot"
     verbose: bool = False

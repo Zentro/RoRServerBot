@@ -2,6 +2,8 @@
 
 **RoRServerBot** is the bot designed to manage and enhance how you interact with your Rigs of Rods server. It provides seamless server control, real-time chat monitoring, and easy interaction for server owners and players alike… all through the convenience of Discord!
 
+Built fully asynchronous and following Pythonic best practices, it delivers speed, stability, and clean code.
+
 ## Quick start
 
 [!NOTE]

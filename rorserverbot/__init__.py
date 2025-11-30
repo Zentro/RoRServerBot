@@ -19,7 +19,6 @@ RoRServerBot
 The Rigs of Rods Server Bot for Discord.
 
 :license: GNU GPLv3, see LICENSE for more details.
-
 """
 
 __title__ = "rorserverbot"
