@@ -15,6 +15,14 @@
 
 
 from pathlib import Path
+from typing import OrderedDict
+
+from rorserverbot.const import (
+    DEFAULT_CONFIG_FILE,
+    DEFAULT_LOG_FILE,
+    DEFAULT_DB_FILE,
+    DEFAULT_DISCORD_COMMAND_PREFIX,
+)
 
 import yaml
 
@@ -22,6 +30,15 @@ import yaml
 class Config:
     """Config manager.
     """
+
+    OPTION_DEFAULTS = OrderedDict(
+        ('name', None),
+        ('verbose', False),
+        ('discord.token', None),
+        ('discord.command_prefix', DEFAULT_DISCORD_COMMAND_PREFIX),
+        ('db_file', DEFAULT_DB_FILE),
+        ('log_file', DEFAULT_LOG_FILE),
+    )
 
     name: str = "RoRBot"
     verbose: bool = False

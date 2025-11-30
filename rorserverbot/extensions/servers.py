@@ -17,42 +17,22 @@ import logging
 from typing import Dict
 from dataclasses import dataclass
 
-from rorserverbot import Client, Config, DataManager
+from rorserverbot import Client, DataManager
 from rorserverbot.models import ServerModel
-from rorserverbot.RoRnet import UserInfo, ServerInfo
 from rorserverbot.util import danger_message, sucess_message
 
 # import discord
 from discord.ext import commands
 
 
-LOG = logging.getLogger('rorserverbot.ext.servers')
-
-
-@dataclass
-class Server:
-    """
-    Data class to hold server information.
-
-    :ivar name: The name of the server.
-    :ivar host: The hostname or IP address of the server.
-    :ivar port: The port number of the server.
-    :ivar channel_id: The Discord channel ID associated with the server.
-    :ivar client: The Client instance managing the connection to the server.
-    """
-    name: str
-    host: str
-    port: int
-    channel_id: int
-    client: Client | None = None
+LOG = logging.getLogger('RoRBot.ext.servers')
 
 
 class Servers(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.config: Config = bot.config
         self.dbm: DataManager = bot.dbm
-        self.servers: Dict[str, Server] = {}
+        self.servers: Dict[int, Client] = {}
 
     async def _load_servers_from_db(self):
         """
@@ -61,25 +41,23 @@ class Servers(commands.Cog):
         :return: None
         :rtype: None
         """
-        servers = await self.dbm.fetch_all(ServerModel)
+        servers = await self.dbm.select_all(ServerModel)
         for server in servers:
-            LOG.info(f"Found {server.name} from metadata manager.")
-            LOG.info(f'Auto connecting to server {server.name} at '
-                     f'{server.host}:{server.port}')
-            server = await self._create_connection(
+            LOG.info(f"Found {server.name} from database.")
+            await self._connect_client(
                 name=server.name,
                 host=server.host,
                 port=server.port,
                 channel_id=server.channel_id
             )
 
-    async def _create_connection(
+    async def _create_client(
         self,
         name: str,
         host: str,
         port: int,
         channel_id: int
-    ) -> Server:
+    ) -> Client:
         """
         Create a connection to a server and return a Server instance.
 
@@ -92,45 +70,34 @@ class Servers(commands.Cog):
         :param port: The port number of the server.
         :type port: int
 
-        :param channel_id: The Discord channel ID associated with the server.
+        :param channel_id: The channel ID associated with the server.
         :type channel_id: int
 
         :return: A Server instance representing the connected server.
         """
-        logger = logging.getLogger(f'rorserverbot.server.{name}')
+        logger = logging.getLogger(f'RoRBot.server.{channel_id}')
         client = Client(logger=logger, host=host, port=port)
 
         client.register_event_handler('on_connect',
-                                      lambda *args: self._on_connect(name,
-                                                                     *args))
+                                      lambda *args: 
+                                      self._on_connect(channel_id, *args))
         client.register_event_handler('on_disconnect',
-                                      lambda *args: self._on_disconnect(name,
-                                                                        *args))
+                                      lambda *args:
+                                      self._on_disconnect(channel_id, *args))
         client.register_event_handler('on_message',
-                                      lambda *args: self._on_message(name,
-                                                                     *args))
+                                      lambda *args:
+                                      self._on_message(channel_id, *args))
         client.register_event_handler('on_event',
-                                      lambda *args: self._on_event(name,
-                                                                   *args))
+                                      lambda *args:
+                                      self._on_event(channel_id, *args))
+        return client
 
-        server = Server(
-            name=name,
-            host=host,
-            port=port,
-            channel_id=channel_id,
-            client=client
-        )
-
-        return server
-
-    async def _connect_server(
+    async def _connect_client(
         self,
         name: str,
         host: str,
         port: int,
         channel_id: int,
-        user_info: UserInfo,
-        server_info: ServerInfo
     ):
         """
         Create and connect to a server.
@@ -144,67 +111,56 @@ class Servers(commands.Cog):
         :param port: The port number of the server.
         :type port: int
 
-        :param user_info: User information for the connection.
-        :type user_info: UserInfo
-
-        :param server_info: Server information for the connection.
-        :type server_info: ServerInfo
-
         :param channel_id: The Discord channel ID associated with the server.
         :type channel_id: int
         """
-        server = await self._create_connection(
+        client = await self._create_client(
             name=name,
             host=host,
             port=port,
             channel_id=channel_id
         )
-
         try:
-            await server.client.connect(
-                user_info=user_info,
-                server_info=server_info
-            )
-            self.servers[name] = server
+            await client.connect()
+            self.servers[channel_id] = client
         except Exception as e:
             raise e
 
-    async def _on_connect(self, name: str, user_info, server_info):
+    async def _on_connect(self, channel_id: int):
         """
         Handle the event when the server connects.
 
-        :param name: The name of the server that connected.
-        :type name: str
+        :param channel_id: The channel ID of the client that connected.
+        :type channel_id: int
 
         :return: None
         :rtype: None
         """
-        server = self.servers.get(name)
+        server = self.servers.get(channel_id)
         if server:
-            channel = self.bot.get_channel(server.channel_id)
+            channel = self.bot.get_channel(channel_id)
             if channel:
-                await channel.send(f"Connected to server {name} at "
-                                   f"{server.host}:{server.port}")
+                await channel.send(f"Connected to {server.host}:{server.port}")
 
-    async def _on_disconnect(self, name: str):
+    async def _on_disconnect(self, channel_id: int):
         """
         Handle the event when the server disconnects.
 
-        :param name: The name of the server that disconnected.
-        :type name: str
+        :param channel_id: The channel ID of the server that disconnected.
+        :type channel_id: int
 
         :return: None
         :rtype: None
         """
-        server = self.servers.get(name)
+        server = self.servers.get(channel_id)
         if server:
-            channel = self.bot.get_channel(server.channel_id)
+            channel = self.bot.get_channel(channel_id)
             server.client = None
             if channel:
-                await channel.send(f"Disconnected from {name} at "
+                await channel.send(f"Disconnected from "
                                    f"{server.host}:{server.port}")
 
-    async def _on_message(self, name: str, message: str):
+    async def _on_message(self, channel_id: int, message: str):
         """
         Handle the event when a messgage is sent on the server.
 
@@ -217,9 +173,9 @@ class Servers(commands.Cog):
         :return: None
         :rtype: None
         """
-        server = self.servers.get(name)
+        server = self.servers.get(channel_id)
         if server:
-            channel = self.bot.get_channel(server.channel_id)
+            channel = self.bot.get_channel(channel_id)
             if channel:
                 await channel.send(f"💬 {message}")
 
@@ -256,7 +212,38 @@ class Servers(commands.Cog):
             - Ensure that the provided host and port are correct and that
               the server is reachable.
         """
-        pass
+        channel_id = ctx.channel.id
+        guild_id = ctx.guild.id
+
+        # Check if a server already exists for this channel
+        servers = await self.dbm.select(
+            ServerModel,
+            where_field='channel_id',
+            value=channel_id
+        )
+
+        if len(servers) > 0:
+            ctx.reply('A server is already registered for this channel.')
+            return
+
+        # Create the server entry in the database
+        server = ServerModel(
+            name=name,
+            guild_id=guild_id,
+            channel_id=channel_id,
+            host=host,
+            port=port
+        )
+
+        try:
+            await self.dbm.insert(server)
+            await ctx.reply('Server was created and is now registered with '
+                            'this channel. You can now use the '
+                            '**connect** command to connect to it.')
+        except Exception as e:
+            LOG.error(f"Failed to create server: {e}")
+            await ctx.reply('An unexpected error occurred while creating the '
+                            'server. Please try again later.')
 
     @commands.hybrid_command()
     @commands.has_permissions(administrator=True)
@@ -289,43 +276,6 @@ class Servers(commands.Cog):
         """
         channel_id = ctx.chnnel.id
 
-
-        # name = "RoR_Server"
-        # host = "rorservers.com"
-        # port = 12000
-        # username = "DiscordUser"
-        # password = ""
-
-        # user_info = UserInfo()
-        # user_info.username = username.encode('utf-8').ljust(40, b'\x00')
-        # user_info.serverpassword = password.encode('utf-8').ljust(40, b'\x00')
-        # user_info.uniqueid = 0
-        # user_info.language = b'en-US'.ljust(10, b'\x00')
-        # user_info.clientname = b'DiscordBot'.ljust(10, b'\x00')
-        # user_info.clientversion = b'1.0'.ljust(25, b'\x00')
-        # user_info.clientGUID = b'discord-bot'.ljust(40, b'\x00')
-        # user_info.sessiontype = b'normal'.ljust(10, b'\x00')
-        # user_info.sessionoptions = b''.ljust(128, b'\x00')
-        # user_info.authstatus = 0
-        # user_info.slotnum = 0
-        # user_info.colournum = 0
-        # user_info.usertoken = b''.ljust(40, b'\x00')
-
-        # # Create ServerInfo
-        # server_info = ServerInfo()
-        # server_info.host = host.encode('utf-8')
-        # server_info.port = port
-
-        # success = await self._connect_server(
-        #     name=name,
-        #     host=host,
-        #     port=port,
-        #     channel_id=ctx.channel.id,
-        #     user_info=user_info,
-        #     server_info=server_info
-        # )
-        # await ctx.send("Connected to server!" if success else "Failed to connect to server.")
-
         servers = await self.dbm.select(
             ServerModel,
             where_field='channel_id',
@@ -333,27 +283,22 @@ class Servers(commands.Cog):
         )
 
         if not servers:
-            await ctx.reply('I couldn\'t find a server for this channel. '
+            await ctx.reply('I couldn\'t find a server registered with this '
+                            'channel. '
                             'Please run the **create_server** command first.')
             return
 
         if len(servers) > 1:
-            await ctx.reply('I found more than one server for this channel. '
-                            'There can only be one server per channel. '
-                            'Please run the **list_servers** command to see '
-                            'the servers associated with this channel and '
-                            'use **delete_server** to remove any unwanted '
-                            'servers.')
+            await ctx.reply('I found more than once server registered with '
+                            'this channel.')
             return
 
         server = servers[0]
 
-        if server.name in self.servers and self.servers[server.name].client:
-            await ctx.reply(f"Already connected to server {server.name}.")
-            return
 
-        await ctx.send(f'Trying to connect to **{server.name}** at '
-                       f'***{server.host}:{server.port}*** ...')
+
+        await ctx.reply(f'Trying to connect to **{server.name}** at '
+                        f'***{server.host}:{server.port}*** ...')
     
 
         await self._connect_server(
@@ -417,7 +362,113 @@ class Servers(commands.Cog):
             - If no server is registered for the channel, an error message
               will be displayed.
         """
-        pass
+        channel_id = ctx.channel.id
+
+        # Check if a server exists for this channel
+        servers = await self.dbm.select(
+            ServerModel,
+            where_field='channel_id',
+            value=channel_id
+        )
+
+        if not servers:
+            await ctx.reply(
+                danger_message(
+                    'No server found for this channel. '
+                    'Use **/create_server** to create one first.'
+                )
+            )
+            return
+
+        server = servers[0]
+
+        # If server is connected, disconnect it first
+        if server.name in self.servers and self.servers[server.name].client:
+            try:
+                await self.servers[server.name].client.disconnect()
+                del self.servers[server.name]
+            except Exception as e:
+                LOG.warning(f"Error disconnecting server during deletion: {e}")
+
+        # Delete from database
+        try:
+            await self.dbm.delete(
+                ServerModel,
+                where_field='channel_id',
+                value=channel_id
+            )
+            await ctx.reply(
+                sucess_message(
+                    f'Server **{server.name}** has been deleted from this channel.'
+                )
+            )
+        except Exception as e:
+            LOG.error(f"Failed to delete server: {e}")
+            await ctx.reply(
+                danger_message(
+                    f'Failed to delete server: {str(e)}'
+                )
+            )
+
+    @commands.hybrid_command()
+    @commands.has_permissions(administrator=True)
+    async def list_servers(self, ctx):
+        """
+        List all servers associated with the current Discord channel.
+
+        This command displays information about servers registered for this
+        channel, including their connection status.
+
+        Args:
+            ctx (commands.Context): The context of the command invocation.
+
+        Behavior:
+            - Lists all servers registered for the current channel.
+            - Shows server name, host, port, and connection status.
+
+        Example Usage:
+            ```
+            /list_servers
+            ```
+
+        Note:
+            - Only one server per channel is allowed, so this will typically
+              show zero or one server.
+        """
+        channel_id = ctx.channel.id
+
+        # Get all servers for this channel
+        servers = await self.dbm.select(
+            ServerModel,
+            where_field='channel_id',
+            value=channel_id
+        )
+
+        if not servers:
+            await ctx.reply(
+                danger_message(
+                    'No servers found for this channel. '
+                    'Use **/create_server** to create one.'
+                )
+            )
+            return
+
+        # Build response message
+        message_parts = ['**Servers for this channel:**\n']
+
+        for server in servers:
+            # Check connection status
+            is_connected = (server.name in self.servers and
+                          self.servers[server.name].client is not None)
+            status = '🟢 Connected' if is_connected else '🔴 Disconnected'
+
+            message_parts.append(
+                f'\n**{server.name}**\n'
+                f'  • Host: `{server.host}:{server.port}`\n'
+                f'  • Status: {status}\n'
+            )
+
+        await ctx.reply('\n'.join(message_parts))
 
     async def cog_load(self):
         LOG.info("Servers extension loaded.")

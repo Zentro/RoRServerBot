@@ -34,7 +34,7 @@ from discord.ext import commands
 from aiohttp import ClientSession
 
 
-LOG = logging.getLogger('rorserverbot.bot')
+LOG = logging.getLogger('RoRBot.bot')
 LOG_FORMAT = (
     '%(asctime)s - %(name)s - %(levelname)s - (%(thread)d) - %(message)s'
 )
@@ -56,6 +56,16 @@ class Main(commands.Bot):
         self.config = config
         self.dbm = dbm
         self.web_client = web_client
+
+    def get_config_variable(self, name: str):
+        """Get a config variable by name.
+
+        :param name: Name of the config variable to get.
+        :type name: str
+        :return: The config variable value.
+        :rtype: Any
+        """
+        return getattr(self.config, name, None)
 
     async def setup_hook(self) -> None:
         # await self.tree.sync(guild=None)
@@ -80,7 +90,7 @@ def print_version():
     :return: None
     :rtype: None
     """
-    sys.stderr.write(f"RoRServerBot version: {__version__}\n")
+    sys.stderr.write(f"RoRBot version: {__version__}\n")
     sys.stderr.write("\n")
 
 
@@ -109,10 +119,15 @@ async def main():
     # We explictly don't want a global config object given the
     # async nature of the program. So, each class will inherit
     # an in-memory copy of the config object.
-    config = Config(Path(args.config))
+    try:
+        config = Config(Path(args.config))
+    except FileNotFoundError as e:
+        sys.stderr.write("An unexpected error occurred:\n")
+        sys.stderr.write(f"Error: {e}\n")
+        sys.exit(1)
     # The various libraries can have their own loggers, and we want
     # to take control of all of them to ensure consistent logging.
-    loggers_list = ['rorserverbot', 'discord', 'discord.http',
+    loggers_list = ['RoRBot', 'discord', 'discord.http',
                     'aiohttp', 'asyncio']
     # Handle the verbose flag for logging.
     if args.verbose:

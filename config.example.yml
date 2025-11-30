@@ -1,7 +1,7 @@
-  name: "RoRBot"
-  verbose: False
-  discord_token: "YOUR_TOKEN"
-  discord_command_prefix: "!"
-  language: "en"
-  db_file_path: "/var/lib/rorserverbot/rorserverbot.db"
-  log_file_path: "/var/log/rorserverbot/rorserverbot.log"
+name: "RoRBot"
+verbose: False
+discord_token: "YOUR_TOKEN"
+discord_command_prefix: "!"
+language: "en"
+db_file_path: "/var/lib/rorserverbot/rorserverbot.db"
+log_file_path: "/var/log/rorserverbot/rorserverbot.log"

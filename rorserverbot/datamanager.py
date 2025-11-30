@@ -20,7 +20,7 @@ from typing import Type, TypeVar, List, Optional, Any, get_origin, get_args
 import aiosqlite
 
 
-LOG = logging.getLogger('rorserverbot.dbm')
+LOG = logging.getLogger('RoRBot.datamanager')
 T = TypeVar('T')
 
 

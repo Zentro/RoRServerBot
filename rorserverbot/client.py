@@ -50,17 +50,40 @@ class Client():
     """Client class to handle the connection to the server.
     """
 
-    def __init__(self, logger=None, host: str = None, port: int = None):
+    def __init__(self,
+                 unique_id = 0,
+                 logger=None,
+                 host: str = None,
+                 port: int = None,
+                 username: str = "RoRBot",
+                 password: str = "",
+                 language: str = "en-US"):
         """
-        Client class to handle the connection to the server.
+        :param unique_id: Unique ID of the client.
+        :type unique_id: int
+
         :param logger: Logger object to log messages.
         :type logger: logging.Logger
+
         :param host: Hostname or IP address of the server.
         :type host: str
+
         :param port: Port number of the server.
         :type port: int
 
+        :param username: Username of the client.
+        :type username: str
+
+        :param password: Password of the client.
+        :type password: str
+
+        :param language: Language of the client.
+        :type language: str
+
+        :return: None
+        :rtype: None
         """
+        self.unique_id = unique_id
         self.logger = logger
         self.connected = False
         self.reader = None
@@ -68,6 +91,8 @@ class Client():
         self.run_task = None
         self.host = host
         self.port = port
+        self.user_info = None
+        self.server_info = None
         self.event_handlers = {
             'on_message': [],
             'on_event': [],
@@ -77,17 +102,24 @@ class Client():
             'on_disconnect': [],
             'on_timeout': [],
         }
+        if self.user_info is None:
+            self.user_info = UserInfo(
+                username=username.encode('utf-8').ljust(40, b'\x00'),
+                serverpssword=password.encode('utf-8').ljust(40, b'\x00'),
+                language=language.encode('utf-8').ljust(10, b'\x00'),
+                clientname = b'RoRBot'.ljust(10, b'\x00'),
+                clientversion = b'1.0'.ljust(25, b'\x00'),
+                usertoken = b''.ljust(40, b'\x00'),
+            )
+        if self.server_info is None:
+            self.server_info = ServerInfo(
+                host=host.encode('utf-8').ljust(128, b'\x00'),
+                port=port
+            )
 
-    async def connect(self,
-                      user_info: UserInfo,
-                      server_info: ServerInfo):
+    async def connect(self):
         """
         Connect to the server.
-
-        :param user_info: UserInfo object containing user information.
-        :param server_info: ServerInfo object containing server information.
-        :type user_info: UserInfo
-        :type server_info: ServerInfo
         :return: None
         :rtype: None
         :raises Exception: If connection fails.
@@ -141,7 +173,7 @@ class Client():
             ))
 
             self.run_task = asyncio.create_task(self.run())
-            await self.dispatch_event('on_connect', user_info, server_info)
+            await self.dispatch_event('on_connect')
         except Exception as e:
             await self.dispatch_event('on_error', str(e))
             self.logger.error(f"Connection error: {e}")

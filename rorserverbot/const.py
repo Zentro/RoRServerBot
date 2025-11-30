@@ -14,6 +14,8 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 
-CONFIG_FILE_PATH = "/var/lib/rorserverbot/config.yaml"
-LOG_FILE_PATH = "/var/log/rorserverbot/rorserverbot.log"
-DATABASE_FILE_PATH = "/var/lib/rorserverbot/rorserverbot.db"
+DEFAULT_CONFIG_FILE = "/var/lib/rorserverbot/config.yaml"
+DEFAULT_LOG_FILE = "/var/log/rorserverbot/rorserverbot.log"
+DEFAULT_DB_FILE = "/var/lib/rorserverbot/rorserverbot.db"
+
+DEFAULT_DISCORD_COMMAND_PREFIX = "!"
