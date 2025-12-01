@@ -53,6 +53,7 @@ class Servers(commands.Cog):
 
     async def _create_client(
         self,
+        name: str,
         host: str,
         port: int,
         channel_id: int
@@ -74,7 +75,7 @@ class Servers(commands.Cog):
 
         :return: A Server instance representing the connected server.
         """
-        logger = logging.getLogger(f'RoRBot.server.{channel_id}')
+        logger = logging.getLogger(f'RoRBot.server.{name}')
         client = Client(logger=logger, host=host, port=port)
 
         client.register_event_handler('on_connect',
@@ -108,6 +109,7 @@ class Servers(commands.Cog):
 
     async def _connect_client(
         self,
+        name: str,
         host: str,
         port: int,
         channel_id: int,
@@ -125,6 +127,7 @@ class Servers(commands.Cog):
         :type channel_id: int
         """
         client = await self._create_client(
+            name=name,
             host=host,
             port=port,
             channel_id=channel_id
@@ -325,6 +328,7 @@ class Servers(commands.Cog):
                         f'***{server.host}:{server.port}*** ...')
 
         await self._connect_client(
+            name=server.name,
             host=server.host,
             port=server.port,
             channel_id=channel_id

@@ -24,6 +24,7 @@ The Rigs of Rods Server Bot for Discord.
 __title__ = "rorserverbot"
 __license__ = "GNU GPLv3"
 __version__ = "2.0.0"
+__clt_version__ = "2022.12"
 
 from .client import Client
 from .config import Config

@@ -16,6 +16,92 @@ from dataclasses import dataclass
 from ctypes import Structure, c_uint32, c_int32, c_float, c_char, c_uint8
 
 
+class BaseStructure(Structure):
+    """Base structure with helper methods 
+    for RoRnet structures.
+    """
+
+    def __init__(self, *args, **kwargs):
+        """
+        Initialize structure fields.
+
+        :param args: Positional arguments for fields.
+        :param kwargs: Keyword arguments for fields.
+
+        :return: None
+        :rtype: None
+
+        :raises AttributeError: If a field name is invalid.
+        """
+        super().__init__()
+
+        field_names = [name for name, _ in self._fields_]
+
+        for i, key in enumerate(args):
+            self._set_field(field_names[i], key)
+        
+        for key, value in kwargs.items():
+            if key not in field_names:
+                raise AttributeError(f"{self.__class__.__name__} has no field "
+                                     f"'{key}'")
+            self._set_field(key, value)
+
+    def _set_field(self, field_name, value):
+        """
+        Set field value, handling string/bytes conversion.
+        :param field_name: Name of the field.
+        :param value: Value to set.
+
+        :return: None
+        :rtype: None
+        """
+        ctype = dict(self._fields_)[field_name]
+        if hasattr(ctype, "_length_") and ctype._type_ is c_char:
+            if isinstance(value, str):
+                value = value.encode("utf-8", errors="replace")
+
+            if isinstance(value, (bytes, bytearray)):
+                length = ctype._length_
+                value = value.ljust(length, b"\x00")[:length]
+
+            setattr(self, field_name, value)
+            return
+
+        setattr(self, field_name, value)
+
+    def as_bytes(self, field_name):
+        """
+        Get field value as bytes, stripping null terminators.
+        :param field_name: Name of the field.
+        :return: Field value as bytes.
+        :rtype: bytes
+        """
+        return getattr(self, field_name).rstrip(b"\x00")
+    
+    def as_str(self, field_name):
+        """
+        Get field value as string, decoding from bytes.
+        :param field_name: Name of the field.
+        :return: Field value as string.
+        :rtype: str
+        """
+        return self.as_bytes(field_name).decode("utf-8", errors="replace")
+
+    def to_dict(self):
+        """
+        Convert structure fields to a dictionary.
+        :return: Dictionary of field names and values.
+        :rtype: dict
+        """
+        out = {}
+        for name, ctype in self._fields_:
+            if hasattr(ctype, "_length_") and ctype._type_ is c_char:
+                out[name] = self.as_str(name)
+            else:
+                out[name] = getattr(self, name)
+        return out
+
+
 @dataclass
 class Header(Structure):
     _fields_ = [
@@ -60,8 +146,7 @@ class StreamUnRegister(Structure):
     ]
 
 
-@dataclass
-class UserInfo(Structure):
+class UserInfo(BaseStructure):
     _fields_ = [
         ("uniqueid", c_uint32),
         ("authstatus", c_int32),
@@ -94,8 +179,7 @@ class VehicleState(Structure):
     ]
 
 
-@dataclass
-class ServerInfo(Structure):
+class ServerInfo(BaseStructure):
     _fields_ = [
         ("protocolversion", c_char * 20),
         ("terrain", c_char * 128),

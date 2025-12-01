@@ -22,7 +22,7 @@ Rigs of Rods Network Protocol Structures and Constants.
 :license: GNU GPLv3, see LICENSE for more details.
 """
 
-__version__ = "2.45"
+__version__ = "RoRnet_2.44"
 
 from .structs import (
     Header, StreamRegister, StreamUnRegister, UserInfo,
